@@ -10,12 +10,39 @@ import (
 )
 
 func main() {
-    t := readTransactions()
-    f1 := GenerateF1(t, 0.35)
+    transactions := readTransactions()
+    f1 := GenerateF1(transactions, 0.35)
+    fk := f1
+    count := 0
+    numOfItemsInTrans := len(transactions[0])
 
-    for _, item := range f1 {
+    fmt.Println(numOfItemsInTrans)
+
+    for k := 2; len(fk) > 0; k++ {
+        ck := CandidateGen(fk, k) // this needs to make the next generation of candidates
+        count = 0
+        for _, t := range transactions {
+            candidatesInTrans := true
+            for _, c := range ck {
+                for _, ci := range c {
+                    _, found := Find(t, ci)
+                    if found == false {
+                        candidatesInTrans = false
+                    }
+                }
+
+                if candidatesInTrans {
+                    //c.count += 1
+                }
+            }
+
+        }
+    }
+
+    for _, item := range fk {
         fmt.Println(item)
     }
+    fmt.Println(count)
 }
 
 func readTransactions() [][]string {
@@ -40,9 +67,9 @@ func readTransactions() [][]string {
 }
 
 // Find unique items
-func GenerateF1(t [][]string, supp float64) []string {
+func GenerateF1(t [][]string, supp float64) [][]string {
     f       := []string{}
-    f1      := []string{}
+    f1      := [][]string{}
     dict    := map[string]int {}
 
     for i := 0; i < len(t); i++ {
@@ -67,7 +94,7 @@ func GenerateF1(t [][]string, supp float64) []string {
                 if _, ok := dict[item]; ok {
                     dict[item] += 1
                 } else {
-                    dict[item] = 0
+                    dict[item] = 1
                 }
             }
         }
@@ -75,7 +102,7 @@ func GenerateF1(t [][]string, supp float64) []string {
 
     for _, item := range f {
         if float64(dict[item]) / float64(len(t)) >= supp {
-            f1 = append(f1, item)
+            f1 = append(f1, []string {item})
         }
     }
 
@@ -89,4 +116,17 @@ func Find(slice []string, val string) (int, bool) {
         }
     }
     return -1, false
+}
+
+func CandidateGen(fk [][]string, k int) [][]string {
+    fmt.Println("Generating..")
+    ck := [][]string{}
+
+    for _, q := range fk {
+        for i := 0; i < len(q); i++ {
+        }
+    }
+
+    fmt.Println(ck)
+    return fk
 }
