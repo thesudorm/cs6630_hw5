@@ -13,11 +13,13 @@ func main() {
     transactions := readTransactions()
     f1 := GenerateF1(transactions, 0.35)
     fk := f1
-    count := 0
-    numOfItemsInTrans := len(transactions[0])
+    //count := 0
+    //numOfItemsInTrans := len(transactions[0])
+    //fmt.Println(numOfItemsInTrans)
 
-    fmt.Println(numOfItemsInTrans)
+    fmt.Println(CandidateGen(fk, 2))
 
+    /*
     for k := 2; len(fk) > 0; k++ {
         ck := CandidateGen(fk, k) // this needs to make the next generation of candidates
         count = 0
@@ -43,6 +45,7 @@ func main() {
         fmt.Println(item)
     }
     fmt.Println(count)
+    */
 }
 
 func readTransactions() [][]string {
@@ -119,14 +122,22 @@ func Find(slice []string, val string) (int, bool) {
 }
 
 func CandidateGen(fk [][]string, k int) [][]string {
-    fmt.Println("Generating..")
+    fmt.Println(fk)
+    fmt.Println(len(fk))
     ck := [][]string{}
+    //iter := 0
 
-    for _, q := range fk {
-        for i := 0; i < len(q); i++ {
+    //fmt.Println(fk)
+    for i := 0; i < len(fk); i++ {
+        //ck = append(ck, append(fk[i], fk[i + 1]))
+        for j := 0; j < len(fk); j++ {
+            _, found := Find(fk[i], fk[j][0])
+            if found == false {
+                ck = append(ck, append(fk[i], fk[j][0]))
+            }
         }
     }
 
-    fmt.Println(ck)
-    return fk
+    fmt.Println(len(ck))
+    return ck
 }
