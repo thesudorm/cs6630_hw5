@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "sort"
     "encoding/csv"
     "io"
     "log"
@@ -10,30 +11,10 @@ import (
 
 func main() {
     t := readTransactions()
-    //minSup := 0.20
-    dict := map[string]int {}
-    f1 := GenerateF1(t)
-
-    //for _, test := range f1 {
-    //fmt.Print(test, " ")
-    //}
-    //fmt.Println()
+    f1 := GenerateF1(t, 0.35)
 
     for _, item := range f1 {
-        for _, trans := range t {
-            _, found := Find(trans, item)
-            if found {
-                if _, ok := dict[item]; ok {
-                    dict[item] += 1
-                } else {
-                    dict[item] = 0
-                }
-            }
-        }
-    }
-
-    for k, v := range dict {
-        fmt.Println(k, v)
+        fmt.Println(item)
     }
 }
 
@@ -59,18 +40,42 @@ func readTransactions() [][]string {
 }
 
 // Find unique items
-func GenerateF1(t [][]string) []string {
-    f1 := []string{}
+func GenerateF1(t [][]string, supp float64) []string {
+    f       := []string{}
+    f1      := []string{}
+    dict    := map[string]int {}
+
     for i := 0; i < len(t); i++ {
         record := t[i]
         for j := 0; j < len(record); j++ {
             item := record[j]
             if len(item) > 0 {
-                _, found := Find(f1, item)
+                _, found := Find(f, item)
                 if !found {
-                    f1 = append(f1, item)
+                    f = append(f, item)
                 }
             }
+        }
+    }
+
+    sort.Strings(f)
+
+    for _, item := range f {
+        for _, trans := range t {
+            _, found := Find(trans, item)
+            if found {
+                if _, ok := dict[item]; ok {
+                    dict[item] += 1
+                } else {
+                    dict[item] = 0
+                }
+            }
+        }
+    }
+
+    for _, item := range f {
+        if float64(dict[item]) / float64(len(t)) >= supp {
+            f1 = append(f1, item)
         }
     }
 
