@@ -11,18 +11,20 @@ import (
 
 func main() {
     transactions := readTransactions()
-    f1 := GenerateF1(transactions, 0.35)
+    f1 := GenerateF1(transactions, 0.50)
     fk := f1
-    //count := 0
+    count := 0
     //numOfItemsInTrans := len(transactions[0])
-    //fmt.Println(numOfItemsInTrans)
 
-    fmt.Println(CandidateGen(fk, 2))
+    //fmt.Println(CandidateGen(fk, 2))
 
-    /*
-    for k := 2; len(fk) > 0; k++ {
+    //for k := 2; len(fk) > 0; k++ {
+    for k := 2; k <= 2; k++ { // forcing one iteration for now
         ck := CandidateGen(fk, k) // this needs to make the next generation of candidates
+        fmt.Println(ck)
         count = 0
+        // I think if I change everything to be a string,
+        // that it will be easier to count with a dict
         for _, t := range transactions {
             candidatesInTrans := true
             for _, c := range ck {
@@ -34,18 +36,14 @@ func main() {
                 }
 
                 if candidatesInTrans {
-                    //c.count += 1
+                    count += 1
                 }
             }
 
         }
     }
 
-    for _, item := range fk {
-        fmt.Println(item)
-    }
-    fmt.Println(count)
-    */
+    fmt.Println(fk)
 }
 
 func readTransactions() [][]string {
@@ -122,14 +120,10 @@ func Find(slice []string, val string) (int, bool) {
 }
 
 func CandidateGen(fk [][]string, k int) [][]string {
-    fmt.Println(fk)
-    fmt.Println(len(fk))
+    toReturn := [][]string{}
     ck := [][]string{}
-    //iter := 0
 
-    //fmt.Println(fk)
     for i := 0; i < len(fk); i++ {
-        //ck = append(ck, append(fk[i], fk[i + 1]))
         for j := 0; j < len(fk); j++ {
             _, found := Find(fk[i], fk[j][0])
             if found == false {
@@ -138,6 +132,6 @@ func CandidateGen(fk [][]string, k int) [][]string {
         }
     }
 
-    fmt.Println(len(ck))
-    return ck
+    toReturn = ck
+    return toReturn
 }
