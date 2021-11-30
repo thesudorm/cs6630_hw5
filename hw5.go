@@ -17,36 +17,50 @@ import (
 */
 
 func main() {
+    minSupp := 0.50
     transactions := readTransactions()
-    f1 := GenerateF1(transactions, 0.50)
+    f1 := GenerateF1(transactions, minSupp) // maybe pass dict in here?
     fk := f1
+    fkPrev := f1
     dict := map[string]int{}
 
-    ck := CandidateGen(fk);
+    fmt.Println(fk)
 
-    for _, c := range ck {
-        for _, t := range transactions {
-            itemsetInTransaction := true
-            itemset := strings.Split(c, " ")
+    for k := 0; len(fkPrev) > 0; k++ {
+        ck := CandidateGen(fk);
+        fmt.Println("Generation", k, "has", len(ck), "candidates.")
+        fmt.Println()
+        for _, c := range ck {
+            for _, t := range transactions {
+                itemsetInTransaction := true
+                itemset := strings.Split(c, " ")
 
-            for _, item := range itemset {
-                _, found := Find(t, item)
-                if found == false {
-                    itemsetInTransaction = false
+                for _, item := range itemset {
+                    _, found := Find(t, item)
+                    if found == false {
+                        itemsetInTransaction = false
+                    }
                 }
-            }
 
-            if itemsetInTransaction {
-                if _, ok := dict[c]; ok {
-                    dict[c] += 1
-                } else {
-                    dict[c] = 1
+                if itemsetInTransaction {
+                    if _, ok := dict[c]; ok {
+                        dict[c] += 1
+                    } else {
+                        dict[c] = 1
+                    }
                 }
             }
         }
-    }
 
-    //fmt.Println(fk)
+        // Once you are done looking at candidates, keep the frequent ones in fk
+        fkPrev = []string {}
+        for _, c := range ck {
+            if float64(dict[c]) / float64(len(transactions)) >= minSupp {
+                fk = append(fk, c)
+                fkPrev = append(fkPrev, c)
+            }
+        }
+    }
 
     for k, v := range dict {
         fmt.Println(k, v)
