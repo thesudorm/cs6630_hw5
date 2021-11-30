@@ -12,7 +12,8 @@ import (
 /*
 /*  TODO:*/
 /*      1. Prune candidates in CandidateGen
-/*      2. Fix CandidateGen to work with k > 2
+/*      2. Fix CandidateGen to work with k > 2*/
+/*      3. Glue everything together
 */
 
 func main() {
@@ -21,12 +22,11 @@ func main() {
     fk := f1
     dict := map[string]int{}
 
-    ck := CandidateGen(fk, 2);
+    ck := CandidateGen(fk);
 
     for _, c := range ck {
         for _, t := range transactions {
             itemsetInTransaction := true
-            //itemInTransaction := false
             itemset := strings.Split(c, " ")
 
             for _, item := range itemset {
@@ -126,15 +126,27 @@ func Find(slice []string, val string) (int, bool) {
     return -1, false
 }
 
-func CandidateGen(fk []string, k int) []string {
+// TODO make this generate candidates for the next generation
+func CandidateGen(fk []string) []string {
     ck := []string{}
 
-    // Generate a super set of candidates
+    // Generate the next gen of candidates
     for i := 0; i < len(fk); i++ {
+        itemset := strings.Split(fk[i], " ")
+        sort.Strings(itemset)
         for j := 0; j < len(fk); j++ {
-            if fk[i] != fk[j] {
-                combined := fk[i] + " " + fk[j]
-                ck = append(ck, combined)
+            itemsetToAdd := strings.Split(fk[j], " ")
+            sort.Strings(itemsetToAdd)
+            for _, item := range itemsetToAdd {
+                _, found := Find(itemset, item)
+                if found == false {
+                    toAdd := fk[i] + " " + item
+                    _, found := Find(ck, toAdd)
+                    if found == false {
+                        ck = append(ck, fk[i] + " " + item)
+                        break
+                    }
+                }
             }
         }
     }
