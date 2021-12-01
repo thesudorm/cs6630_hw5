@@ -9,27 +9,18 @@ import (
     "log"
     "os"
 )
-/*
-/*  TODO:*/
-/*      1. Prune candidates in CandidateGen
-/*      2. Fix CandidateGen to work with k > 2*/
-/*      3. Glue everything together
-*/
 
 func main() {
-    minSupp := 0.50
+    minSupp := 0.25
     transactions := readTransactions()
-    f1 := GenerateF1(transactions, minSupp) // maybe pass dict in here?
+    f1, dict := GenerateF1(transactions, minSupp)
     fk := f1
     fkPrev := f1
-    dict := map[string]int{}
-
-    fmt.Println(fk)
 
     for k := 0; len(fkPrev) > 0; k++ {
-        ck := CandidateGen(fk);
-        fmt.Println("Generation", k, "has", len(ck), "candidates.")
-        fmt.Println()
+        ck := CandidateGen(fkPrev);
+        //fmt.Println("Generation", k, "has", len(ck), "candidates.")
+        //fmt.Println()
         for _, c := range ck {
             for _, t := range transactions {
                 itemsetInTransaction := true
@@ -53,17 +44,29 @@ func main() {
         }
 
         // Once you are done looking at candidates, keep the frequent ones in fk
+        fk = fkPrev
         fkPrev = []string {}
         for _, c := range ck {
-            if float64(dict[c]) / float64(len(transactions)) >= minSupp {
+            supp := float64(dict[c]) / float64(len(transactions))
+            _, found := Find(fk, c)
+            if supp >= minSupp && found == false{
                 fk = append(fk, c)
                 fkPrev = append(fkPrev, c)
             }
         }
     }
 
-    for k, v := range dict {
-        fmt.Println(k, v)
+    keys := []string{}
+    for _, k := range fk {
+        keys = append(keys, k)
+    }
+
+    sort.Strings(keys)
+
+
+    // Write all freq itemsets to console
+    for _, k := range keys {
+        fmt.Println(k, fmt.Sprintf("%.2f", ((float64(dict[k]) / float64(len(transactions))))))
     }
 }
 
@@ -89,7 +92,7 @@ func readTransactions() [][]string {
 }
 
 // Find unique items
-func GenerateF1(t [][]string, supp float64) []string {
+func GenerateF1(t [][]string, supp float64) ([]string, map[string]int) {
     f       := []string{}
     f1      := []string{}
     dict    := map[string]int {}
@@ -128,7 +131,7 @@ func GenerateF1(t [][]string, supp float64) []string {
         }
     }
 
-    return f1
+    return f1, dict
 }
 
 func Find(slice []string, val string) (int, bool) {
@@ -145,6 +148,7 @@ func CandidateGen(fk []string) []string {
     ck := []string{}
 
     // Generate the next gen of candidates
+    // Maybe I should use arrays of arrays instead? This is kinda dumb.. :(
     for i := 0; i < len(fk); i++ {
         itemset := strings.Split(fk[i], " ")
         sort.Strings(itemset)
@@ -153,20 +157,27 @@ func CandidateGen(fk []string) []string {
             sort.Strings(itemsetToAdd)
             for _, item := range itemsetToAdd {
                 _, found := Find(itemset, item)
-                if found == false {
-                    toAdd := fk[i] + " " + item
-                    _, found := Find(ck, toAdd)
+                if found == false { // prevents dupe items in the same itemset
+                    //_, found := Find(ck, toAdd)
                     if found == false {
-                        ck = append(ck, fk[i] + " " + item)
+                        toAdd := fk[i] + " " + item
+                        sortedToAdd := strings.Split(toAdd, " ")
+                        sort.Strings(sortedToAdd)
+                        toAdd = ""
+                        for _, str := range sortedToAdd {
+                            toAdd += str + " "
+                        }
+                        toAdd = toAdd[:len(toAdd)-1]
+                        _, found := Find(ck, toAdd)
+                        if found == false {
+                            ck = append(ck, toAdd)
+                        }
                         break
                     }
                 }
             }
         }
     }
-
-    // Prune candidates
-    // TODO
 
     return ck
 }
