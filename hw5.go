@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "strconv"
     "strings"
     "sort"
     "encoding/csv"
@@ -11,11 +12,15 @@ import (
 )
 
 func main() {
-    minSupp := 0.25
+    minSupp := 0.30
     transactions := readTransactions()
+    minSuppDict, sortedMinSupp := readMinSupp()
     f1, dict := GenerateF1(transactions, minSupp)
     fk := f1
     fkPrev := f1
+
+    fmt.Println(minSuppDict)
+    fmt.Println(sortedMinSupp)
 
     for k := 0; len(fkPrev) > 0; k++ {
         ck := CandidateGen(fkPrev);
@@ -68,6 +73,19 @@ func main() {
     for _, k := range keys {
         fmt.Println(k, fmt.Sprintf("%.2f", ((float64(dict[k]) / float64(len(transactions))))))
     }
+
+    /*
+    fmt.Println("Total", len(transactions))
+    fmt.Println("Bread", dict["Bread"])
+    fmt.Println("Bagel", dict["Bagel"])
+    fmt.Println("Cheese", dict["Cheese"])
+    fmt.Println("Diaper", dict["Diaper"])
+    fmt.Println("Eggs", dict["Eggs"])
+    fmt.Println("Meat", dict["Meat"])
+    fmt.Println("Milk", dict["Milk"])
+    fmt.Println("Pencil", dict["Pencil"])
+    fmt.Println("Wine", dict["Wine"])
+    */
 }
 
 func readTransactions() [][]string {
@@ -90,6 +108,33 @@ func readTransactions() [][]string {
 
     return t
 }
+
+// the input is alrady presorted, so we can assumed that sorted slice will be sorted
+func readMinSupp() (map[string]float64, []string) {
+    dict := map[string]float64 {}
+    sortedSlice := []string{}
+    csv_file, _ := os.Open("min_support.csv")
+    r := csv.NewReader(csv_file)
+
+    for {
+        record, err := r.Read()
+
+        if err == io.EOF {
+            break
+        }
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        if n, err := strconv.ParseFloat(record[1], 64); err == nil {
+            dict[record[0]] = n
+            sortedSlice = append(sortedSlice, record[0])
+        }
+    }
+
+    return dict, sortedSlice
+}
+
 
 // Find unique items
 func GenerateF1(t [][]string, supp float64) ([]string, map[string]int) {
