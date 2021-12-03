@@ -15,17 +15,24 @@ func main() {
     minSupp := 0.30
     transactions := readTransactions()
     minSuppDict, sortedMinSupp := readMinSupp()
-    l := InitPass(sortedMinSupp, minSuppDict, transactions)
-    f1, dict := GenerateF1(transactions, minSupp)
+    l, f1, dict := InitPass(sortedMinSupp, minSuppDict, transactions)
+    //f1, dict := GenerateF1(transactions, minSupp)
     fk := f1
+    ck := []string {}
     fkPrev := f1
 
     fmt.Println(minSuppDict)
     fmt.Println(sortedMinSupp)
     fmt.Println(l)
+    fmt.Println("Items that pass their minimum supp threshholds.")
+    fmt.Println(f1)
 
-    for k := 0; len(fkPrev) > 0; k++ {
-        ck := CandidateGen(fkPrev);
+    for k := 2; len(fkPrev) > 0; k++ {
+        if k == 2 { // Level 2 candidate gen for MS
+            ck = Level2CandidateGen(l, minSuppDict, dict, len(transactions))
+        } else {
+            ck = CandidateGen(fkPrev);
+        }
         //fmt.Println("Generation", k, "has", len(ck), "candidates.")
         //fmt.Println()
         for _, c := range ck {
@@ -229,8 +236,10 @@ func CandidateGen(fk []string) []string {
     return ck
 }
 
-func InitPass(sortedMinSlice []string, minSuppDict map[string]float64, t[][]string) []string {
-    f    := []string{}
+// Creates L for MSApirori and uses L to return F1
+func InitPass(sortedMinSlice []string, minSuppDict map[string]float64, t[][]string) ([]string, []string, map[string]int) {
+    f       := []string{}
+    f1      := []string{}
     l       := []string{}
     dict    := map[string]int {}
 
@@ -260,13 +269,41 @@ func InitPass(sortedMinSlice []string, minSuppDict map[string]float64, t[][]stri
         }
     }
 
+    // Create L using the lowest min support
     for _, item := range sortedMinSlice {
         if _, ok := dict[item]; ok {
-            if float64(dict[item]) / float64(len(t)) >= minSuppDict[item] {
+            if float64(dict[item]) / float64(len(t)) >= minSuppDict[sortedMinSlice[0]] {
                 l = append(l, item)
             }
         }
     }
 
-    return l
+    // Now create F1 by using item's own minumum support
+    for _, item := range l {
+        if _, ok := dict[item]; ok {
+            if float64(dict[item]) / float64(len(t)) >= minSuppDict[item] {
+                f1 = append(f1, item)
+            }
+        }
+    }
+
+    return l, f1, dict
+}
+
+func Level2CandidateGen(l []string, minSuppDict map[string]float64, countDict map[string]int, numTrans int) ([]string) {
+    ck := []string { }
+
+    for i := 0; i < len(l) - 1; i++ {
+        item := l[i]
+        actualItemSupp := float64(countDict[item]) / float64(numTrans)
+        if  actualItemSupp > minSuppDict[item] {
+            for j:= i + 1; j < len(l); j++ {
+                if float64(countDict[l[j]]) / float64(numTrans) > actualItemSupp {
+                    ck = append(ck, item + " " + l[j])
+                }
+            }
+        }
+    }
+
+    return ck
 }
