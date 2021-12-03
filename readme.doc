@@ -2,6 +2,10 @@ Apriori
 
 Joseph Bauer
 
+You can view a public repo with the code here: 
+
+https://github.com/thesudorm/cs6630_hw5
+
 This is my attempt at implemting Apriori from scratch. I was not able to get
 MSapriori finished in time, so this is a vanilla Apriori implementation that
 suffers from the Rare Item Problem. 
