@@ -1,0 +1,39 @@
+Apriori
+
+Joseph Bauer
+
+This is my attempt at implemting Apriori from scratch. I was not able to get
+MSapriori finished in time, so this is a vanilla Apriori implementation that
+suffers from the Rare Item Problem. 
+
+The program is written in Golang. You can find the program in the ```h25.go``` file.
+You can run the program by installing Golang and using the command:
+
+```go run .``` 
+
+I've also included a built binary named ```hw5``` that should work on a Unix
+system.
+
+The program takes a command line argument for the minimum support value.
+
+retail_dataset.csv is my File 1. It contains a list of transactions containing
+up to 7 items per transaction. There are 9 unique different items in the data
+set. There can be blank items in a transaction. Commas are used as the
+separator.
+
+The program first reads in all the information it needs. Once the minimum
+support and transactions are read, it starts by generating the first generation
+of singleton candidates outside of the main working loop. Then, the main loops
+starts. The loop will stop when the CandidateGen function returns an empty
+slice. 
+
+The Candidate gen function will build up supersets made up of candidates that
+passed the previous generation. These candidates are then checked to see if they
+meet the minimum support value. If they do not meet the value, they are not
+added to the frequent item set.
+
+At the end of the loop, the program will take a snapshot of the current set of
+frequent itemsets and saves it into a variable representing the itemsets of the
+previous generation. The loop starts over, using the previous generation of
+candidates until it cannot make any more valid candidates. 
+

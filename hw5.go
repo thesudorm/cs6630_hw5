@@ -7,66 +7,72 @@ import (
     "encoding/csv"
     "io"
     "log"
+    "strconv"
     "os"
 )
 
 func main() {
-    minSupp := 0.25
-    transactions := readTransactions()
-    f1, dict := GenerateF1(transactions, minSupp)
-    fk := f1
-    fkPrev := f1
+    if len(os.Args) != 2 {
+        fmt.Println("Please include only 1 argument")
+    } else {
+        if n, err := strconv.ParseFloat(os.Args[1], 64); err == nil {
+            minSupp := n
+            transactions := readTransactions()
+            f1, dict := GenerateF1(transactions, minSupp)
+            fk := f1
+            fkPrev := f1
 
-    for k := 0; len(fkPrev) > 0; k++ {
-        ck := CandidateGen(fkPrev);
-        //fmt.Println("Generation", k, "has", len(ck), "candidates.")
-        //fmt.Println()
-        for _, c := range ck {
-            for _, t := range transactions {
-                itemsetInTransaction := true
-                itemset := strings.Split(c, " ")
+            for k := 0; len(fkPrev) > 0; k++ {
+                ck := CandidateGen(fkPrev);
+                for _, c := range ck {
+                    for _, t := range transactions {
+                        itemsetInTransaction := true
+                        itemset := strings.Split(c, " ")
 
-                for _, item := range itemset {
-                    _, found := Find(t, item)
-                    if found == false {
-                        itemsetInTransaction = false
+                        for _, item := range itemset {
+                            _, found := Find(t, item)
+                            if found == false {
+                                itemsetInTransaction = false
+                            }
+                        }
+
+                        if itemsetInTransaction {
+                            if _, ok := dict[c]; ok {
+                                dict[c] += 1
+                            } else {
+                                dict[c] = 1
+                            }
+                        }
                     }
                 }
 
-                if itemsetInTransaction {
-                    if _, ok := dict[c]; ok {
-                        dict[c] += 1
-                    } else {
-                        dict[c] = 1
+                // Once you are done looking at candidates, keep the frequent ones in fk
+                fk = fkPrev
+                fkPrev = []string {}
+                for _, c := range ck {
+                    supp := float64(dict[c]) / float64(len(transactions))
+                    _, found := Find(fk, c)
+                    if supp >= minSupp && found == false{
+                        fk = append(fk, c)
+                        fkPrev = append(fkPrev, c)
                     }
                 }
             }
-        }
 
-        // Once you are done looking at candidates, keep the frequent ones in fk
-        fk = fkPrev
-        fkPrev = []string {}
-        for _, c := range ck {
-            supp := float64(dict[c]) / float64(len(transactions))
-            _, found := Find(fk, c)
-            if supp >= minSupp && found == false{
-                fk = append(fk, c)
-                fkPrev = append(fkPrev, c)
+            keys := []string{}
+            for _, k := range fk {
+                keys = append(keys, k)
             }
+
+            sort.Strings(keys)
+
+            // Write all freq itemsets to console
+            for _, k := range keys {
+                fmt.Println(k, fmt.Sprintf("%.2f", ((float64(dict[k]) / float64(len(transactions))))))
+            }
+        } else {
+            fmt.Println("Please include a support value.")
         }
-    }
-
-    keys := []string{}
-    for _, k := range fk {
-        keys = append(keys, k)
-    }
-
-    sort.Strings(keys)
-
-
-    // Write all freq itemsets to console
-    for _, k := range keys {
-        fmt.Println(k, fmt.Sprintf("%.2f", ((float64(dict[k]) / float64(len(transactions))))))
     }
 }
 
@@ -158,7 +164,6 @@ func CandidateGen(fk []string) []string {
             for _, item := range itemsetToAdd {
                 _, found := Find(itemset, item)
                 if found == false { // prevents dupe items in the same itemset
-                    //_, found := Find(ck, toAdd)
                     if found == false {
                         toAdd := fk[i] + " " + item
                         sortedToAdd := strings.Split(toAdd, " ")

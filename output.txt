@@ -1,0 +1,32 @@
+Script started on 2021-12-03 13:07:27-05:00 [TERM="xterm-256color" TTY="/dev/pts/3" COLUMNS="90" LINES="56"]
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ls
+[?2004lgo.mod  [0m[01;32mhw5[0m  hw5.go  output.txt  readme.doc  readme.md  [01;32mretail_dataset.csv[0m  typescript
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ go build .
+[?2004l[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ./hw5 0.10
+[?2004lCheese Eggs Meat Milk 0.15
+Cheese Eggs Meat Wine 0.11
+Cheese Eggs Milk Wine 0.10
+Cheese Meat Milk Wine 0.10
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ./hw5 0.10[K[K20
+[?2004lCheese Eggs Meat 0.22
+Cheese Meat Milk 0.20
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ./hw5 0.20[K[K30
+[?2004lCheese Meat 0.32
+Cheese Milk 0.30
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ./hw5 0.30[K[K40
+[?2004lBagel 0.43
+Bread 0.50
+Cheese 0.50
+Diaper 0.41
+Eggs 0.44
+Meat 0.48
+Milk 0.50
+Wine 0.44
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ ./hw5 0.40[K[K50
+[?2004lBread 0.50
+Cheese 0.50
+Milk 0.50
+[?2004h]0;yeoj@thebox: ~/src/cs6260_hw5yeoj@thebox:~/src/cs6260_hw5$ exit
+[?2004lexit
+
+Script done on 2021-12-03 13:08:02-05:00 [COMMAND_EXIT_CODE="0"]
