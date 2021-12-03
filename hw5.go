@@ -15,12 +15,14 @@ func main() {
     minSupp := 0.30
     transactions := readTransactions()
     minSuppDict, sortedMinSupp := readMinSupp()
+    l := InitPass(sortedMinSupp, minSuppDict, transactions)
     f1, dict := GenerateF1(transactions, minSupp)
     fk := f1
     fkPrev := f1
 
     fmt.Println(minSuppDict)
     fmt.Println(sortedMinSupp)
+    fmt.Println(l)
 
     for k := 0; len(fkPrev) > 0; k++ {
         ck := CandidateGen(fkPrev);
@@ -225,4 +227,46 @@ func CandidateGen(fk []string) []string {
     }
 
     return ck
+}
+
+func InitPass(sortedMinSlice []string, minSuppDict map[string]float64, t[][]string) []string {
+    f    := []string{}
+    l       := []string{}
+    dict    := map[string]int {}
+
+    for i := 0; i < len(t); i++ {
+        record := t[i]
+        for j := 0; j < len(record); j++ {
+            item := record[j]
+            if len(item) > 0 {
+                _, found := Find(f, item)
+                if !found {
+                    f = append(f, item)
+                }
+            }
+        }
+    }
+
+    for _, item := range f {
+        for _, trans := range t {
+            _, found := Find(trans, item)
+            if found {
+                if _, ok := dict[item]; ok {
+                    dict[item] += 1
+                } else {
+                    dict[item] = 1
+                }
+            }
+        }
+    }
+
+    for _, item := range sortedMinSlice {
+        if _, ok := dict[item]; ok {
+            if float64(dict[item]) / float64(len(t)) >= minSuppDict[item] {
+                l = append(l, item)
+            }
+        }
+    }
+
+    return l
 }
