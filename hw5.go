@@ -96,7 +96,6 @@ func readTransactions() [][]string {
 
     return t
 }
-
 // Find unique items
 func GenerateF1(t [][]string, supp float64) ([]string, map[string]int) {
     f       := []string{}
@@ -149,7 +148,6 @@ func Find(slice []string, val string) (int, bool) {
     return -1, false
 }
 
-// TODO make this generate candidates for the next generation
 func CandidateGen(fk []string) []string {
     ck := []string{}
 
